@@ -1,151 +1,83 @@
-// Hardcoded contract address — update after deploy.
-// Edit address to point this front end at an existing deployment.
+// BOT Chain mainnet deployment. "TOKEN" in labels is replaced with the pool token's symbol.
 window.APP_CONFIG = {
-  "address": "0x0000000000000000000000000000000000000000",
+  "address": "0xD29de39fAF2656690ac64bC0e632b230b6FFF277",
   "slug": "swaplite",
   "name": "SwapLite",
   "accent": "#2f5bd3",
-  "tagline": "A tiny automated market maker for two tokens.",
-  "about": "Constant-product pool (x·y=k) with a 0.3% fee. Add liquidity in the pool ratio, swap either way, and remove your share at any time.",
-  "tokens": [
-    "tokenA",
-    "tokenB"
-  ],
-  "deploy": {
-    "tokens": [
-      {
-        "name": "Token A",
-        "symbol": "TKA"
-      },
-      {
-        "name": "Token B",
-        "symbol": "TKB"
-      }
-    ],
-    "args": [
-      "$t0",
-      "$t1"
-    ]
-  },
+  "tagline": "Swap BOT and a token in one tiny pool.",
+  "about": "Constant-product pool (x·y=k) between native BOT and one ERC-20 token, with a 0.3% fee. Add liquidity in the pool ratio, swap either way, and remove your share at any time.",
+  "tokens": ["token"],
   "stats": [
-    {
-      "label": "Reserve A",
-      "fn": "reserveA",
-      "fmt": "token"
-    },
-    {
-      "label": "Reserve B",
-      "fn": "reserveB",
-      "fmt": "token"
-    },
-    {
-      "label": "Total LP shares",
-      "fn": "totalShares",
-      "fmt": "token"
-    },
-    {
-      "label": "Your LP shares",
-      "fn": "shares",
-      "fmt": "token",
-      "args": [
-        "me"
-      ]
-    }
+    { "label": "BOT in pool", "fn": "reserveBot", "fmt": "token" },
+    { "label": "TOKEN in pool", "fn": "reserveToken", "fmt": "tkn" },
+    { "label": "Total LP shares", "fn": "totalShares", "fmt": "token" },
+    { "label": "Your LP shares", "fn": "shares", "fmt": "token", "args": ["me"] }
   ],
   "actions": [
     {
+      "title": "Swap BOT → TOKEN",
+      "fn": "swapBotForToken",
+      "valueInput": "amountIn",
+      "quote": { "dir": true, "from": "amountIn", "slip": "slip" },
+      "inputs": [
+        { "id": "amountIn", "label": "BOT to sell", "type": "amount", "default": "1" },
+        { "id": "slip", "label": "Max slippage %", "type": "percent", "default": "1" }
+      ]
+    },
+    {
+      "title": "Swap TOKEN → BOT",
+      "fn": "swapTokenForBot",
+      "approve": "amountIn",
+      "quote": { "dir": false, "from": "amountIn", "slip": "slip" },
+      "inputs": [
+        { "id": "amountIn", "label": "TOKEN to sell", "type": "tokenAmount", "default": "10" },
+        { "id": "slip", "label": "Max slippage %", "type": "percent", "default": "1" }
+      ]
+    },
+    {
       "title": "Add liquidity",
       "fn": "addLiquidity",
-      "desc": "After the first deposit, amounts are matched to the pool ratio.",
+      "desc": "After the first deposit, amounts are matched to the pool ratio and any extra BOT is refunded.",
+      "valueInput": "bot",
+      "approve": "tkn",
       "inputs": [
-        {
-          "id": "a",
-          "label": "Amount A",
-          "type": "amount",
-          "default": "100"
-        },
-        {
-          "id": "b",
-          "label": "Amount B",
-          "type": "amount",
-          "default": "100"
-        }
+        { "id": "bot", "label": "BOT", "type": "amount", "default": "10" },
+        { "id": "tkn", "label": "TOKEN", "type": "tokenAmount", "default": "100" }
       ]
     },
     {
       "title": "Remove liquidity",
       "fn": "removeLiquidity",
-      "inputs": [
-        {
-          "id": "s",
-          "label": "LP shares",
-          "type": "amount",
-          "default": "10"
-        }
-      ]
-    },
-    {
-      "title": "Swap",
-      "fn": "swap",
-      "inputs": [
-        {
-          "id": "dir",
-          "label": "Direction",
-          "type": "bool",
-          "options": [
-            [
-              "true",
-              "A → B"
-            ],
-            [
-              "false",
-              "B → A"
-            ]
-          ]
-        },
-        {
-          "id": "amountIn",
-          "label": "Amount in",
-          "type": "amount",
-          "default": "10"
-        },
-        {
-          "id": "minOut",
-          "label": "Minimum out",
-          "type": "amount",
-          "default": "0"
-        }
-      ]
+      "desc": "Same units as \"Your LP shares\" above.",
+      "inputs": [ { "id": "s", "label": "LP shares", "type": "amount", "default": "1" } ]
     }
   ],
   "views": [
     {
-      "title": "Quote a swap",
+      "title": "Quote BOT → TOKEN",
       "fn": "getAmountOut",
+      "fmt": "tkn",
       "button": "Get quote",
       "inputs": [
-        {
-          "id": "dir",
-          "label": "Direction",
-          "type": "bool",
-          "options": [
-            [
-              "true",
-              "A → B"
-            ],
-            [
-              "false",
-              "B → A"
-            ]
-          ]
-        },
-        {
-          "id": "amountIn",
-          "label": "Amount in",
-          "type": "amount",
-          "default": "10"
-        }
+        { "id": "dir", "type": "const", "value": true },
+        { "id": "amountIn", "label": "BOT in", "type": "amount", "default": "1" }
       ]
+    },
+    {
+      "title": "Quote TOKEN → BOT",
+      "fn": "getAmountOut",
+      "fmt": "token",
+      "button": "Get quote",
+      "inputs": [
+        { "id": "dir", "type": "const", "value": false },
+        { "id": "amountIn", "label": "TOKEN in", "type": "tokenAmount", "default": "10" }
+      ]
+    },
+    {
+      "title": "LP shares of an address",
+      "fn": "shares",
+      "fmt": "token",
+      "inputs": [ { "id": "a", "label": "Address", "type": "address", "meDefault": true } ]
     }
   ]
 };
