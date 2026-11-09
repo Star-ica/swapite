@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SwapLite · BOT Chain</title>
+<meta name="description" content="Swap BOT and a token in one tiny pool on BOT Chain.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="theme-swap">
 <header class="top">
   <div class="brand">
     <div class="logo-mark">⇄</div>
@@ -17,25 +18,64 @@
       <p id="tagline">Swap BOT and a token in one tiny pool.</p>
     </div>
   </div>
+  <nav class="topnav">
+    <a href="#how">How it works</a>
+    <a href="#app">App</a>
+  </nav>
   <div class="wallet">
     <span id="netBadge" class="badge">Not connected</span>
     <button id="connectBtn" class="btn primary" type="button">Connect wallet</button>
   </div>
 </header>
-<main>
-  <section class="stats" id="stats" aria-label="Live numbers"></section>
-  <div class="panels">
-    <div>
-      <p class="sec">Actions</p>
-      <section class="grid" id="actions"></section>
-    </div>
-    <div>
-      <p class="sec">Lookups</p>
-      <section class="grid" id="views"></section>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">Live on BOT Chain · Chain ID 677</span>
+    <h2>Swap BOT <span class="grad">⇄</span> token<br>in a single tap.</h2>
+    <p class="lead">One pool, on-chain pricing, no sign-up. Connect your wallet, enter an amount and swap — that's it.</p>
+    <div class="hero-cta">
+      <button id="heroConnect" class="btn primary lg" type="button">Connect wallet</button>
+      <a class="btn ghost lg" href="#app">Open app →</a>
     </div>
   </div>
-  <section class="card" id="tokens"></section>
+  <div class="hero-visual" aria-hidden="true">
+    <div class="orb"><span>⇄</span></div>
+    <div class="chip chip-a">BOT</div>
+    <div class="chip chip-b">TOKEN</div>
+  </div>
+  <div class="hero-stats">
+    <p class="sec">Live pool numbers</p>
+    <section class="stats" id="stats" aria-label="Live numbers"></section>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="step"><b>1</b><h3>Connect</h3><p>Use any EVM wallet on BOT Chain mainnet.</p></div>
+  <div class="step"><b>2</b><h3>Choose amount</h3><p>Pick BOT or the token and see what you get back.</p></div>
+  <div class="step"><b>3</b><h3>Swap</h3><p>Confirm once — the pool settles it on-chain.</p></div>
+</section>
+
+<section class="features">
+  <div><h4>Single pool</h4><p>Simple constant-product pricing you can verify.</p></div>
+  <div><h4>Non-custodial</h4><p>Funds move straight from your wallet to the contract.</p></div>
+  <div><h4>Open source</h4><p>Read the contract on BOT Chain Scan any time.</p></div>
+</section>
+
+<main class="app" id="app">
+  <aside class="side">
+    <p class="sec">Pool &amp; tokens</p>
+    <section class="card" id="tokens"></section>
+  </aside>
+  <div class="workspace">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-pane="pane-actions" type="button">Actions</button>
+      <button class="tab" role="tab" aria-selected="false" data-pane="pane-views" type="button">Lookups</button>
+    </div>
+    <div class="pane" id="pane-actions"><section class="grid" id="actions"></section></div>
+    <div class="pane" id="pane-views" hidden><section class="grid" id="views"></section></div>
+  </div>
 </main>
+
 <div class="status" id="status" role="status" aria-live="polite"></div>
 <footer class="foot">
   <span>BOT Chain Mainnet · Chain ID 677</span>
@@ -48,5 +88,26 @@
 <script src="config.js"></script>
 <script src="artifacts.js"></script>
 <script src="app.js"></script>
+<script>
+(function () {
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x) { x.setAttribute('aria-selected', x === t); });
+      document.querySelectorAll('.pane').forEach(function (p) { p.hidden = p.id !== t.dataset.pane; });
+    });
+  });
+  document.getElementById('heroConnect').addEventListener('click', function () {
+    document.getElementById('connectBtn').click();
+  });
+  var badge = document.getElementById('netBadge'), jumped = false;
+  new MutationObserver(function () {
+    var on = !/not connected/i.test(badge.textContent);
+    document.body.classList.toggle('is-connected', on);
+    if (on && !jumped) { jumped = true; document.getElementById('app').scrollIntoView({ behavior: 'smooth' }); }
+    if (!on) jumped = false;
+  }).observe(badge, { childList: true, characterData: true, subtree: true });
+})();
+</script>
 </body>
 </html>
