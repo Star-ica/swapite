@@ -8,7 +8,7 @@ window.ARTIFACTS = {
       "function reserveToken() view returns (uint256)",
       "function totalShares() view returns (uint256)",
       "function shares(address) view returns (uint256)",
-      "function getAmountOut(bool botToToken, uint256 amountIn) view returns (uint256)",
+      "function getAmountOut(bool botToT  oken, uint256 amountIn) view returns (uint256)",
       "function addLiquidity(uint256 tokenAmount) payable returns (uint256 s)",
       "function removeLiquidity(uint256 s)",
       "function swapBotForToken(uint256 minOut) payable returns (uint256 out)",
